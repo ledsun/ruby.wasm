@@ -1,5 +1,5 @@
 import { DefaultRubyVM } from "./browser";
-import { runRubyScriptsInHtml } from "./runRubyScriptsInHtml";
+import { RubyRunner } from "./RubyRunner";
 
 export const main = async (pkg: { name: string; version: string }) => {
   const response = await fetch(
@@ -12,15 +12,16 @@ export const main = async (pkg: { name: string; version: string }) => {
   vm.printVersion();
 
   globalThis.rubyVM = vm;
+  const runner = new RubyRunner(vm);
 
   // Wait for the text/ruby script tag to be read.
   // It may take some time to read ruby+stdlib.wasm
   // and DOMContentLoaded has already been fired.
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", () =>
-      runRubyScriptsInHtml(vm)
+      runner.runRubyScriptsInHtml(vm)
     );
   } else {
-    runRubyScriptsInHtml(vm);
+    runner.runRubyScriptsInHtml(vm);
   }
 };
