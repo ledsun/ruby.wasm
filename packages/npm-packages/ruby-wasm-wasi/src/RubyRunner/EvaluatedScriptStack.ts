@@ -12,9 +12,9 @@ export class EvaluatedScriptStack {
     this._stack = [];
   }
 
-  eval(script: RubyScript): void {
+  async eval(script: RubyScript): Promise<void> {
     this._stack.push(script);
-    this._vm.eval(script.ScriptBody);
+    await this._vm.evalAsync(script.ScriptBody);
     this._stack.pop();
   }
 }

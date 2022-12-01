@@ -20,7 +20,7 @@ export class RubyRunner {
     // Run Ruby scripts sequentially.
     for await (const rubyScript of promisingRubyScripts) {
       if (rubyScript) {
-        this._stack.eval(rubyScript);
+        await this._stack.eval(rubyScript);
       }
     }
   }
