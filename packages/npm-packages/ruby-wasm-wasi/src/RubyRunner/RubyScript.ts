@@ -6,7 +6,11 @@ export class RubyScript {
 
   constructor(url: URL, scriptBody: string) {
     this._url = url;
-    this._scriptBody = scriptBody;
+    const patchedScript = scriptBody.replace(
+      /require_relative/g,
+      "require_relative_url"
+    );
+    this._scriptBody = patchedScript;
   }
 
   get ScriptBody() {
