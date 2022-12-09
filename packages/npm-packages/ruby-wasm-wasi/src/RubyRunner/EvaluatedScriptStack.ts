@@ -17,4 +17,8 @@ export class EvaluatedScriptStack {
     await this._vm.evalAsync(script.ScriptBody);
     this._stack.pop();
   }
+
+  get currentURL(): URL {
+    return this._stack.at(-1).URL;
+  }
 }
