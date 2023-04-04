@@ -60,7 +60,15 @@ export const DefaultRubyVM = async (
 }> => {
   await init();
 
-  const wasi = new WASI({});
+  // Replaces require_relative with fetch,
+  // which waits for fetch to complete each time require_relative is executed.
+  // Also, require_relative is called recursively.
+  // Set the size of the Fiber stack large enough to withstand the above use.
+  const wasi = new WASI({
+    env: {
+      RUBY_FIBER_MACHINE_STACK_SIZE: String(1024 * 1024 * 20),
+    },
+  });
   const vm = new RubyVM();
 
   const imports = wasi.getImports(rubyModule) as WebAssembly.Imports;
