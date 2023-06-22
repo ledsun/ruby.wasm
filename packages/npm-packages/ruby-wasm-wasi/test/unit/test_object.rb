@@ -185,6 +185,11 @@ class JS::TestObject < Test::Unit::TestCase
   def test_method_missing
     assert_equal "42", JS.eval("return 42;").toString.to_s
     assert_equal "o", JS.eval("return 'hello';").charAt(4).to_s
+    assert_equal "5", JS.eval("return 'hello';").length.to_s
+
+    obj = JS.eval("return {};")
+    obj.new_property = 100;
+    assert_equal "100", obj.new_property.to_s
   end
 
   def test_method_missing_with_block
@@ -207,11 +212,15 @@ class JS::TestObject < Test::Unit::TestCase
     assert_true block_called
   end
 
+  def test_method_missing_with_undefined_property
+    assert_equal 'undefined', JS.eval("return 42;").undefined_property.to_s
+  end
+
   def test_method_missing_with_undefined_method
     object = JS.eval(<<~JS)
       return { foo() { return true; } };
     JS
-    assert_raise(NoMethodError) { object.bar }
+    assert_raise(NoMethodError) { object.bar() }
   end
 
   def test_respond_to_missing?

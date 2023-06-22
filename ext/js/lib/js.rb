@@ -92,6 +92,13 @@ class JS::Object
   def method_missing(sym, *args, &block)
     if self[sym].typeof == "function"
       self.call(sym, *args, &block)
+    elsif args.empty?
+      # If no argument, treat as reading a property
+      # Return undefiend if a nonexistent property is read.
+      self.method(:[]).call(sym)
+    elsif sym.end_with? '='
+      # Methods whose names end in = are treated as assignments to properties
+      self.method(:[]=).call(sym.to_s.gsub!(/=$/, ''), *args)
     else
       super
     end
