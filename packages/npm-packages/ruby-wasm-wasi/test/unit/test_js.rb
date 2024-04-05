@@ -38,12 +38,20 @@ class JS::TestJS < Test::Unit::TestCase
   def test_falsey?
     assert_true JS.falsey?(JS::False)
     assert_true JS.falsey?(JS::Zero)
+    assert_true JS.falsey?(JS::NinusZero)
+    assert_true JS.falsey?(JS::BingIntZero)
+    assert_true JS.falsey?(JS::EmptyString)
+    assert_true JS.falsey?(JS::Null)
+    assert_true JS.falsey?(JS::Undefined)
+    assert_true JS.falsey?(JS::Nan)
+    assert_false JS.falsey?({}.to_js)
+    assert_false JS.falsey?([].to_js)
   end
 
-  # def test_truthy?
-  #   assert_true JS.truthy?(JS::True)
-  #   assert_true JS.truthy?({}.to_js)
-  #   assert_true JS.truthy?([].to_js)
+  def test_truthy?
+    assert_true JS.truthy?(JS::True)
+    assert_true JS.truthy?({}.to_js)
+    assert_true JS.truthy?([].to_js)
   #   assert_true JS.truthy?(42.to_js)
   #   assert_true JS.truthy?("0".to_js)
   #   assert_true JS.truthy?("false".to_js)
@@ -62,5 +70,5 @@ class JS::TestJS < Test::Unit::TestCase
   #   assert_false JS.truthy?(JS::Null)
   #   assert_false JS.truthy?(JS::Undefined)
   #   assert_false JS.truthy?(JS::Nan)
-  # end
+  end
 end
