@@ -77,9 +77,12 @@ module JS
   False = JS.eval("return false;")
 
   def self.falsey?(value)
-    value == JS::False || value == JS::Zero || value == JS::NinusZero ||
-      value == JS::BingIntZero || value == JS::EmptyString ||
-      value == JS::Null || value == JS::Undefined || value == JS::Nan
+    case value
+    when JS::False, JS::Zero, JS::NinusZero, JS::BingIntZero, JS::EmptyString, JS::Null, JS::Undefined, JS::Nan
+      true
+    else
+      false
+    end
   end
 
   def self.truthy?(value)
