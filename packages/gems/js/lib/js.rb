@@ -78,7 +78,8 @@ module JS
 
   def self.falsey?(value)
     case value
-    when JS::False, JS::Zero, JS::NinusZero, JS::BingIntZero, JS::EmptyString, JS::Null, JS::Undefined, JS::Nan
+    when JS::False, JS::Zero, JS::NinusZero, JS::BingIntZero, JS::EmptyString,
+         JS::Null, JS::Undefined, JS::Nan
       true
     else
       false
