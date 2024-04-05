@@ -43,8 +43,14 @@ require_relative "js/nil_class.rb"
 #   end
 #
 module JS
+  # JavaScript falthy values
   Undefined = JS.eval("return undefined")
   Null = JS.eval("return null")
+  Nan = JS.eval("return NaN")
+  Zero = JS.eval("return 0")
+  NinusZero = JS.eval("return -0")
+  BingIntZero = JS.eval("return 0n")
+  EmptyString = JS.eval("return ''")
 
   # A boolean value in JavaScript is always a JS::Object instance from Ruby's point of view.
   # If we use the boolean value returned by a JavaScript function as the condition for an if expression in Ruby,
@@ -69,6 +75,16 @@ module JS
   #   end
   True = JS.eval("return true;")
   False = JS.eval("return false;")
+
+  def self.falsey?(value)
+    value == JS::False || value == JS::Zero || value == JS::NinusZero ||
+      value == JS::BingIntZero || value == JS::EmptyString ||
+      value == JS::Null || value == JS::Undefined || value == JS::Nan
+  end
+
+  def self.truthy?(value)
+    !self.falsey?(value)
+  end
 
   class PromiseScheduler
     def initialize(loop)
@@ -191,10 +207,10 @@ class JS::Object
     self[sym].typeof == "function"
   end
 
-  # Call the receiver (a JavaScript function) with `undefined` as its receiver context. 
+  # Call the receiver (a JavaScript function) with `undefined` as its receiver context.
   # This method is similar to JS::Object#call, but it is used to call a function that is not
   # a method of an object.
-  #   
+  #
   #   floor = JS.global[:Math][:floor]
   #   floor.apply(3.14) # => 3
   #   JS.global[:Promise].new do |resolve, reject|
