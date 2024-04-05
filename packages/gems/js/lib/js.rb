@@ -77,13 +77,16 @@ module JS
   False = JS.eval("return false;")
 
   def self.falsey?(value)
-    case value
-    when JS::False, JS::Zero, JS::NinusZero, JS::BingIntZero, JS::EmptyString,
-         JS::Null, JS::Undefined, JS::Nan
-      true
-    else
-      false
-    end
+    value ==JS::Null ||
+      value ==JS::Undefined ||
+    # Use strictly_eql? to compare the value with JavaScript === operator.
+    # This is because `[] == ""` is true in JavaScript, but `[] === ""` is false.
+    value.strictly_eql?(JS::EmptyString) ||
+    value.strictly_eql?(JS::False) || value.strictly_eql?(JS::Zero) || value.strictly_eql?(JS::NinusZero) ||
+      value.strictly_eql?(JS::BingIntZero) ||
+    # Use Number.isNaN to compare the value.
+    # This is because `NaN == NaN` is false in JavaScript, but `Number.isNaN(NaN)` is true.
+     JS.global[:Number].isNaN?(value)
   end
 
   def self.truthy?(value)
