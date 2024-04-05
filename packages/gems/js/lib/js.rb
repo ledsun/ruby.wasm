@@ -78,12 +78,13 @@ module JS
 
   def self.falsey?(value)
     value == JS::Null || value == JS::Undefined ||
-      # Use strictly_eql? to compare the value with JavaScript === operator.
-      # This is because `[] == ""` is true in JavaScript, but `[] === ""` is false.
+      # Use the strictly_eql? method to compare values using JavaScript's `===` operator.
+      # This is because JavaScript's `==` operator is loose in its judgment.
+      # For example, in JavaScript, `[] == ""` is true, but `[] === ""` is false.
       value.strictly_eql?(JS::EmptyString) || value.strictly_eql?(JS::False) ||
       value.strictly_eql?(JS::Zero) || value.strictly_eql?(JS::NinusZero) ||
       value.strictly_eql?(JS::BingIntZero) ||
-      # Use Number.isNaN to compare the value.
+      # `Number.isNaN`` is used to compare whether a value is `NaN`` or not.
       # This is because `NaN == NaN` is false in JavaScript, but `Number.isNaN(NaN)` is true.
       JS.global[:Number].isNaN?(value)
   end
