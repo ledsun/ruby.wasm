@@ -76,7 +76,8 @@ module JS
   True = JS.eval("return true;")
   False = JS.eval("return false;")
 
-  def self.falsey?(value)
+  #
+  def self.falsy?(value)
     value == JS::Null || value == JS::Undefined ||
       # Use the strictly_eql? method to compare values using JavaScript's `===` operator.
       # This is because JavaScript's `==` operator is loose in its judgment.
@@ -90,7 +91,7 @@ module JS
   end
 
   def self.truthy?(value)
-    !self.falsey?(value)
+    !self.falsy?(value)
   end
 
   class PromiseScheduler

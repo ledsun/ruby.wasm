@@ -35,17 +35,17 @@ class JS::TestJS < Test::Unit::TestCase
     assert_equal "false", JS::False.to_s
   end
 
-  def test_falsey?
-    assert_true JS.falsey?(JS::False)
-    assert_true JS.falsey?(JS::Zero)
-    assert_true JS.falsey?(JS::NinusZero)
-    assert_true JS.falsey?(JS::BingIntZero)
-    assert_true JS.falsey?(JS::EmptyString)
-    assert_true JS.falsey?(JS::Null)
-    assert_true JS.falsey?(JS::Undefined)
-    assert_true JS.falsey?(JS::Nan)
-    assert_false JS.falsey?({}.to_js)
-    assert_false JS.falsey?([].to_js)
+  def test_falsy?
+    assert_true JS.falsy?(JS::False)
+    assert_true JS.falsy?(JS::Zero)
+    assert_true JS.falsy?(JS::NinusZero)
+    assert_true JS.falsy?(JS::BingIntZero)
+    assert_true JS.falsy?(JS::EmptyString)
+    assert_true JS.falsy?(JS::Null)
+    assert_true JS.falsy?(JS::Undefined)
+    assert_true JS.falsy?(JS::Nan)
+    assert_false JS.falsy?({}.to_js)
+    assert_false JS.falsy?([].to_js)
   end
 
   def test_truthy?
