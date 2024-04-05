@@ -76,6 +76,24 @@ module JS
   True = JS.eval("return true;")
   False = JS.eval("return false;")
 
+  # Return true if value is a JavaScript falsy value.
+  # JavaScript falsy values are `false`, `0`, `''`, `null`, `undefined`, `-0`, `0n`, and `NaN`.
+  # see: https://developer.mozilla.org/en-US/docs/Glossary/Falsy
+  #
+  # `JS::Null == JS::False` is false.
+  # However, in some situations you may want to treat `JS::Null` as a false value.
+  # In JavaScript, you might write the following.
+  #
+  #   if(!document.querySelector('.target));
+  #
+  # In this case, we are not concerned with whether the return value is null, but whether it is falsy.
+  # However, since `JS::Null == JS::False` is false, we need to specify null strictly as follows.
+  #
+  #   if JS.global[:document].querySelector('.taregt') == JS::Null
+  #
+  # With ``JS.falsy?`` you can write the following.
+  #
+  #   if JS.falsy? JS.global[:document].querySelector('.taregt')
   #
   def self.falsy?(value)
     value == JS::Null || value == JS::Undefined ||
