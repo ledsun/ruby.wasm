@@ -95,6 +95,9 @@ export type RubyInitModuleOptions = {
 }
 
 export type RubyInitOptions = RubyInitComponentOptions | RubyInitModuleOptions;
+export type RubyEvalOptions = {
+  filename?: string;
+};
 
 /**
  * A Ruby VM instance
@@ -112,6 +115,7 @@ export class RubyVM {
   private interfaceState: RbAbiInterfaceState = {
     hasJSFrameAfterRbFrame: false,
   };
+  private jsEvaluator?: RbValue;
 
   /**
    * Instantiate a Ruby VM with the given WebAssembly Core module with WASI Preview 1 implementation.
@@ -599,6 +603,7 @@ export class RubyVM {
   /**
    * Runs a string of Ruby code from JavaScript
    * @param code The Ruby code to run
+   * @param options Optional evaluation settings
    * @returns the result of the last expression
    * @category Essentials
    *
@@ -608,7 +613,11 @@ export class RubyVM {
    * console.log(result.toString()); // 3
    *
    */
-  eval(code: string): RbValue {
+  eval(code: string, options: RubyEvalOptions = {}): RbValue {
+    if (options.filename) {
+      const evaluator = this.jsEvaluator ??= this.eval("require 'js'; JS::Evaluator");
+      return evaluator.call("evaluate", this.wrap(code), this.wrap(options.filename));
+    }
     return evalRbCode(this, this.privateObject(), code);
   }
 
