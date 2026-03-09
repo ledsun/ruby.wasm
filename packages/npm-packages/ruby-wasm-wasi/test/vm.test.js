@@ -147,6 +147,13 @@ eval:11:in \`<main>'`
     expect(vm.eval(`__ENCODING__.name`).toString()).toBe("UTF-8");
   });
 
+  test("eval with filename", async () => {
+    const vm = await initRubyVM();
+    expect(vm.eval("__FILE__", { filename: "hello.rb" }).toString()).toBe("hello.rb");
+    expect(() => vm.eval("raise 'panic from eval with filename'", { filename: "hello.rb" }))
+      .toThrowError(/hello\.rb/);
+  });
+
   test.each([
     `JS::RubyVM.eval('Fiber.yield')`,
     `
