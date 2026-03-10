@@ -79,6 +79,47 @@ describe("Packaging validation", () => {
     }
   });
 
+  test("DefaultRubyVM RequireLocal", async () => {
+    const mod = await loadWasmModule(`ruby+stdlib.wasm`);
+    const { vm } = await DefaultRubyVM(mod);
+    const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "ruby-wasm-require-local-"));
+    const nestedDir = path.join(tempDir, "nested");
+    const entryFile = path.join(tempDir, "entry.rb");
+    const helperFile = path.join(nestedDir, "helper.rb");
+
+    try {
+      await fs.mkdir(nestedDir);
+      await fs.writeFile(entryFile, [
+        "ENTRY_COUNT = defined?(ENTRY_COUNT) ? ENTRY_COUNT + 1 : 1",
+        "ENTRY_FILE = __FILE__",
+        "require_relative './nested/helper'",
+      ].join("\n"));
+      await fs.writeFile(helperFile, "HELPER_FILE = __FILE__\n");
+
+      vm.eval(`
+        require "js/require_local/relative_shim"
+        JS::RequireLocal.instance.base_dir = ${JSON.stringify(tempDir)}
+        JS::RequireLocal.instance.load("entry")
+      `);
+
+      expect(vm.eval("ENTRY_FILE").toString()).toBe(entryFile);
+      expect(vm.eval("HELPER_FILE").toString()).toBe(helperFile);
+      expect(vm.eval("ENTRY_COUNT").toString()).toBe("1");
+      expect(vm.eval(`
+        require "js/require_local"
+        JS::RequireLocal.instance.base_dir = ${JSON.stringify(tempDir)}
+        JS::RequireLocal.instance.load("entry")
+      `).toString()).toBe("false");
+      expect(() => vm.eval(`
+        require "js/require_local"
+        JS::RequireLocal.instance.base_dir = ${JSON.stringify(tempDir)}
+        JS::RequireLocal.instance.load("missing")
+      `)).toThrowError(/cannot load such file/);
+    } finally {
+      await fs.rm(tempDir, { recursive: true, force: true });
+    }
+  });
+
   test.each([
     { file: "ruby+stdlib.wasm", stdlib: true },
     { file: "ruby.debug+stdlib.wasm", stdlib: true },
