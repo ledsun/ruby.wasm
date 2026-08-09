@@ -171,15 +171,13 @@ const test = async (instantiate) => {
   const rootTestFile = "/__root__/test/test_unit.rb";
   const { vm } = await instantiate(rootTestFile);
 
-  const result = await vm.evalAsync(`
+  await vm.evalAsync(`
     require 'test/unit'
 
     require_relative '${rootTestFile}'
-    Test::Unit::AutoRunner.run
+    ok = Test::Unit::AutoRunner.run
+    exit(1) unless ok
   `);
-  if (result.toString() !== "true") {
-    throw new Error("test-unit failed");
-  }
 };
 
 const main = async () => {
@@ -194,9 +192,4 @@ const main = async () => {
   }
 };
 
-main().catch((error) => {
-  if (String(error) === "Symbol(kExitCode)") {
-    return;
-  }
-  throw error;
-});
+main();
