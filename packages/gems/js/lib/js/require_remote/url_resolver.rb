@@ -1,5 +1,9 @@
+require_relative "../ruby_feature"
+
 module JS
   class RequireRemote
+    # ScriptLocation#url holds a JavaScript URL object, not a Ruby String or
+    # Ruby URI object.
     ScriptLocation = Data.define(:url, :filename)
 
     # When require_relative is called within a running Ruby script,
@@ -13,7 +17,7 @@ module JS
       end
 
       def get_location(relative_feature)
-        filename = filename_from(relative_feature)
+        filename = RubyFeature.filename_from(relative_feature)
         url = resolve(filename)
         ScriptLocation.new(url, filename)
       end
@@ -32,15 +36,7 @@ module JS
 
       private
 
-      def filename_from(relative_feature)
-        if relative_feature.end_with?(".rb")
-          relative_feature
-        else
-          "#{relative_feature}.rb"
-        end
-      end
-
-      # Return a URL object of JavaScript.
+      # Return a JavaScript URL object.
       def resolve(relative_filepath)
         JS.global[:URL].new relative_filepath, @url_stack.last
       end
