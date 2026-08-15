@@ -10,7 +10,7 @@ module JS
     def initialize
       @bridge = JS.global[:__ruby_wasm_require_local__]
       if @bridge == JS::Undefined || @bridge == JS::Null
-        raise LoadError, "js/require_local is only supported on Node.js DefaultRubyVM"
+        raise LoadError, "js/require_local is not enabled; pass enableRequireLocal: true to DefaultRubyVM"
       end
 
       @resolver = PathResolver.new(default_base_dir)

@@ -55,14 +55,19 @@ describe("Packaging validation", () => {
   };
 
   test("DefaultRubyVM", async () => {
+    delete globalThis.__ruby_wasm_require_local__;
     const mod = await loadWasmModule(`ruby+stdlib.wasm`);
     const { vm } = await DefaultRubyVM(mod);
     vm.eval(`require "stringio"`);
+    expect(() => vm.eval(`
+      require "js/require_local"
+      JS::RequireLocal.instance
+    `)).toThrowError(/pass enableRequireLocal: true to DefaultRubyVM/);
   });
 
   test("DefaultRubyVM RequireLocal", async () => {
     const mod = await loadWasmModule(`ruby+stdlib.wasm`);
-    const { vm } = await DefaultRubyVM(mod);
+    const { vm } = await DefaultRubyVM(mod, { enableRequireLocal: true });
     const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "ruby-wasm-require-local-"));
     const nestedDir = path.join(tempDir, "nested");
     const entryFile = path.join(tempDir, "entry.rb");

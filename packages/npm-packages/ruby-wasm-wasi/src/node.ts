@@ -12,11 +12,16 @@ const installRequireLocalBridge = () => {
 
 export const DefaultRubyVM = async (
   rubyModule: WebAssembly.Module,
-  options: { env?: Record<string, string> | undefined } = {},
+  options: {
+    env?: Record<string, string> | undefined;
+    enableRequireLocal?: boolean;
+  } = {},
 ) => {
   const wasi = new WASI({ env: options.env, version: "preview1", returnOnExit: true });
   const { vm, instance } = await RubyVM.instantiateModule({ module: rubyModule, wasip1: wasi });
-  installRequireLocalBridge();
+  if (options.enableRequireLocal) {
+    installRequireLocalBridge();
+  }
 
   return {
     vm,
