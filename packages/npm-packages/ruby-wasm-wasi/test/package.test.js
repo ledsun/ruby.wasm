@@ -6,8 +6,6 @@ import { RubyVM } from "../src/index";
 import { DefaultRubyVM } from "../src/node";
 import { describe, test, expect } from "vitest"
 
-const escapeRegExp = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-
 const initRubyVM = async (rubyModule, args) => {
   const wasi = new WASI({
     version: "preview1",
@@ -60,23 +58,6 @@ describe("Packaging validation", () => {
     const mod = await loadWasmModule(`ruby+stdlib.wasm`);
     const { vm } = await DefaultRubyVM(mod);
     vm.eval(`require "stringio"`);
-  });
-
-  test("DefaultRubyVM evalFile", async () => {
-    const mod = await loadWasmModule(`ruby+stdlib.wasm`);
-    const { vm } = await DefaultRubyVM(mod);
-    const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "ruby-wasm-eval-file-"));
-    const rubyFile = path.join(tempDir, "script.rb");
-
-    try {
-      await fs.writeFile(rubyFile, "__FILE__");
-      expect(vm.evalFile(rubyFile).toString()).toBe(rubyFile);
-
-      await fs.writeFile(rubyFile, "raise 'panic from file'");
-      expect(() => vm.evalFile(rubyFile)).toThrowError(new RegExp(escapeRegExp(rubyFile)));
-    } finally {
-      await fs.rm(tempDir, { recursive: true, force: true });
-    }
   });
 
   test("DefaultRubyVM RequireLocal", async () => {

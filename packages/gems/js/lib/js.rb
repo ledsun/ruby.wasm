@@ -1,7 +1,6 @@
 require "js.so"
 require_relative "js/hash.rb"
 require_relative "js/array.rb"
-require_relative "js/evaluator.rb"
 require_relative "js/nil_class.rb"
 
 # The JS module provides a way to interact with JavaScript from Ruby.

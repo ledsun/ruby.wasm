@@ -1,7 +1,7 @@
 require "singleton"
 require "js"
+require_relative "./ruby_loader"
 require_relative "./require_remote/url_resolver"
-require_relative "./require_remote/evaluator"
 
 module JS
   # This class is used to load remote Ruby scripts.
@@ -52,7 +52,7 @@ module JS
       # By default, the base_url is the URL of the HTML file that invoked ruby.wasm vm.
       base_url = JS.global[:URL].new(JS.global[:location][:href])
       @resolver = URLResolver.new(base_url)
-      @evaluator = Evaluator.new
+      @loader = RubyLoader.new
     end
 
     # If you want to resolve relative paths to a starting point other than the HTML file that executes ruby.wasm,
@@ -75,7 +75,7 @@ module JS
       location = @resolver.get_location(relative_feature)
 
       # Do not load the same URL twice.
-      return false if @evaluator.evaluated?(location.url[:href].to_s)
+      return false if @loader.loaded?(location.url[:href].to_s)
 
       response = JS.global.fetch(location.url).await
       unless response[:status].to_i == 200
@@ -88,18 +88,18 @@ module JS
       final_url = response[:url].to_s
 
       # Do not evaluate the same URL twice.
-      return false if @evaluator.evaluated?(final_url)
+      return false if @loader.loaded?(final_url)
 
       code = response.text().await.to_s
 
-      evaluate(code, location.filename, final_url)
+      load_code(code, location.filename, final_url)
     end
 
     private
 
-    def evaluate(code, filename, final_url)
+    def load_code(code, filename, final_url)
       @resolver.push(final_url)
-      @evaluator.evaluate(code, filename, final_url)
+      @loader.load(code, filename, final_url)
       @resolver.pop
       true
     end

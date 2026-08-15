@@ -1,7 +1,7 @@
 require "singleton"
 require "js"
+require_relative "./ruby_loader"
 require_relative "./require_local/path_resolver"
-require_relative "./require_local/evaluator"
 
 module JS
   class RequireLocal
@@ -14,7 +14,7 @@ module JS
       end
 
       @resolver = PathResolver.new(default_base_dir)
-      @evaluator = Evaluator.new
+      @loader = RubyLoader.new
     end
 
     def base_dir=(base_dir)
@@ -23,10 +23,10 @@ module JS
 
     def load(relative_feature)
       location = @resolver.get_location(relative_feature)
-      return false if @evaluator.evaluated?(location.path)
+      return false if @loader.loaded?(location.path)
 
       code = read_file(location.path)
-      evaluate(code, location.path)
+      load_code(code, location.path)
     end
 
     private
@@ -42,10 +42,9 @@ module JS
       raise LoadError, "cannot load such file -- #{path}: #{e.message}"
     end
 
-    def evaluate(code, path)
+    def load_code(code, path)
       @resolver.push(path)
-      @evaluator.evaluate(code, path, path)
-      true
+      @loader.load(code, path, path)
     ensure
       @resolver.pop
     end
